@@ -1,1 +1,52 @@
-<h1>bye world</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blooket</title>
+    <style>
+        button {
+            display: none; 
+        }
+    </style>
+</head>
+<body>
+    <button id="fullscreenButton">Fullscreen</button>
+    <script>
+        var url = "https://classcadium.pages.dev/bb.html"; 
+        var win;
+        var combo = ['B', 'L', 'O', 'O', 'K', 'E', 'T'];
+        var currentIndex = 0;
+
+        // Listen for keydown events
+        document.addEventListener('keydown', function(event) {
+            if (event.key.toUpperCase() === combo[currentIndex]) {
+                currentIndex++; 
+                if (currentIndex === combo.length) {
+                    document.getElementById('fullscreenButton').style.display = 'block'; 
+                }
+            } else {
+                currentIndex = 0;
+            }
+        });
+
+        document.getElementById('fullscreenButton').onclick = function() {
+            if (win) {
+                win.focus();
+            } else {
+                win = window.open(); 
+                win.document.body.style.margin = '0';
+                win.document.body.style.height = '100vh';
+                var iframe = win.document.createElement('iframe');
+                iframe.style.border = 'none';
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.src = url; 
+                win.document.body.appendChild(iframe); 
+            }
+            document.getElementById('fullscreenButton').style.background = 'grey'; 
+            document.getElementById('fullscreenButton').innerHTML = ""; 
+        };
+    </script>
+</body>
+</html>
