@@ -13,40 +13,7 @@
 <body>
     <button id="fullscreenButton"></button>
     <script>
-        var url = "https://cryptodude3.github.io/bb/"; 
-        var win;
-        var combo = ['B', 'L', 'A', 'C', 'K', 'E', 'T'];
-        var currentIndex = 0;
-
-        // Listen for keydown events
-        document.addEventListener('keydown', function(event) {
-            if (event.key.toUpperCase() === combo[currentIndex]) {
-                currentIndex++; 
-                if (currentIndex === combo.length) {
-                    document.getElementById('fullscreenButton').style.display = 'block'; 
-                }
-            } else {
-                currentIndex = 0;
-            }
-        });
-
-        document.getElementById('fullscreenButton').onclick = function() {
-            if (win) {
-                win.focus();
-            } else {
-                win = window.open(); 
-                win.document.body.style.margin = '0';
-                win.document.body.style.height = '100vh';
-                var iframe = win.document.createElement('iframe');
-                iframe.style.border = 'none';
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.src = url; 
-                win.document.body.appendChild(iframe); 
-            }
-            document.getElementById('fullscreenButton').style.background = 'grey'; 
-            document.getElementById('fullscreenButton').innerHTML = ""; 
-        };
+        function _0x3ea2(_0x2de250,_0x55def7){var _0x3ba945=_0x3ba9();return _0x3ea2=function(_0x3ea22e,_0x156aa5){_0x3ea22e=_0x3ea22e-0x159;var _0x16a16f=_0x3ba945[_0x3ea22e];return _0x16a16f;},_0x3ea2(_0x2de250,_0x55def7);}function _0x3ba9(){var _0x2503d7=['height','src','display','17775100CjWzWz','appendChild','6669012gUMbbF','2063754kagues','style','190510GrkMxo','12LKxyMJ','border','margin','grey','6VLphXi','https://cryptodude3.github.io/bb/','getElementById','toUpperCase','body','key','none','906995sQSzcF','fullscreenButton','iframe','1631TwxSfT','100%','36824BCYaYE','onclick','length','100vh','background','327638ZmGgcw','block','document','innerHTML'];_0x3ba9=function(){return _0x2503d7;};return _0x3ba9();}var _0x13b7a8=_0x3ea2;(function(_0x15376a,_0xeb5d76){var _0x3b3362=_0x3ea2,_0x2de307=_0x15376a();while(!![]){try{var _0x48b1de=parseInt(_0x3b3362(0x15e))/0x1+parseInt(_0x3b3362(0x174))/0x2*(parseInt(_0x3b3362(0x163))/0x3)+-parseInt(_0x3b3362(0x15f))/0x4*(parseInt(_0x3b3362(0x16a))/0x5)+parseInt(_0x3b3362(0x15b))/0x6+parseInt(_0x3b3362(0x16d))/0x7*(parseInt(_0x3b3362(0x16f))/0x8)+parseInt(_0x3b3362(0x15c))/0x9+-parseInt(_0x3b3362(0x159))/0xa;if(_0x48b1de===_0xeb5d76)break;else _0x2de307['push'](_0x2de307['shift']());}catch(_0x230bcd){_0x2de307['push'](_0x2de307['shift']());}}}(_0x3ba9,0x94dd4));var url=_0x13b7a8(0x164),win,combo=['B','L','A','C','K','E','T'],currentIndex=0x0;document['addEventListener']('keydown',function(_0x5ce855){var _0x236ea6=_0x13b7a8;_0x5ce855[_0x236ea6(0x168)][_0x236ea6(0x166)]()===combo[currentIndex]?(currentIndex++,currentIndex===combo[_0x236ea6(0x171)]&&(document[_0x236ea6(0x165)]('fullscreenButton')[_0x236ea6(0x15d)][_0x236ea6(0x17a)]=_0x236ea6(0x175))):currentIndex=0x0;}),document[_0x13b7a8(0x165)](_0x13b7a8(0x16b))[_0x13b7a8(0x170)]=function(){var _0x1db7ba=_0x13b7a8;if(win)win['focus']();else{win=window['open'](),win[_0x1db7ba(0x176)][_0x1db7ba(0x167)]['style'][_0x1db7ba(0x161)]='0',win[_0x1db7ba(0x176)][_0x1db7ba(0x167)][_0x1db7ba(0x15d)][_0x1db7ba(0x178)]=_0x1db7ba(0x172);var _0x10a3fa=win[_0x1db7ba(0x176)]['createElement'](_0x1db7ba(0x16c));_0x10a3fa['style'][_0x1db7ba(0x160)]=_0x1db7ba(0x169),_0x10a3fa[_0x1db7ba(0x15d)]['width']=_0x1db7ba(0x16e),_0x10a3fa[_0x1db7ba(0x15d)]['height']=_0x1db7ba(0x16e),_0x10a3fa[_0x1db7ba(0x179)]=url,win[_0x1db7ba(0x176)][_0x1db7ba(0x167)][_0x1db7ba(0x15a)](_0x10a3fa);}document[_0x1db7ba(0x165)](_0x1db7ba(0x16b))['style'][_0x1db7ba(0x173)]=_0x1db7ba(0x162),document[_0x1db7ba(0x165)](_0x1db7ba(0x16b))[_0x1db7ba(0x177)]='';};
     </script>
 </body>
 </html>
