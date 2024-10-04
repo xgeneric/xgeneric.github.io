@@ -1,18 +1,20 @@
-!DOCTYPE html>
-<html>
-    <body>
-        <pre id="output"></pre>
-        <script type="text/javascript">
-            var element = new Image;
-            var devtoolsOpen = false;
-            element.__defineGetter__("id", function() {
-                devtoolsOpen = true; // This only executes when devtools is open.
-            });
-            setInterval(function() {
-                devtoolsOpen = false;
-                console.log(element);
-                document.getElementById('output').innerHTML += (devtoolsOpen ? "dev tools is open\n" : "dev tools is closed\n");
-            }, 1000);
-        </script>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detect Inspect Element</title>
+    <script>
+        window.addEventListener('resize', () => {
+            const threshold = 160; // adjust the threshold as needed
+            if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+                alert("DevTools detected!");
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Welcome to My Website</h1>
+    <p>This page will detect if you open DevTools (Inspect Element).</p>
+</body>
 </html>
