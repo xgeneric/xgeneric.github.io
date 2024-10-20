@@ -398,7 +398,7 @@ const liveApp = initializeApp({
                     const auth = getAuth(liveApp);
                     await signInWithCustomToken(auth, body.fbToken);
                     const db =  getDatabase(liveApp);
-await set(ref(db,`${gid}/c/${name}`),{b:icog?fblooks[Math.floor(Math.random()*fblooks.length)]:"Rainbow Astronaut",rt:!0});
+await set(ref(db,`${gid}/c/${name}`),{b:icog?fblooks[Math.floor(Math.random()*fblooks.length)]:"Rainbow Astronaut",zr:!0});
 botinfo.fbdb = db;
 botinfo.liveApp = liveApp;
 botinfo.connecting = false;
