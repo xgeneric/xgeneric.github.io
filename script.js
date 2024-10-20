@@ -372,7 +372,7 @@ botinfo.connecting = true;
 botinfo.name = name;
 botinfo.gid = gid;
 updateStatus("Fetching token...");
-const body = reqbody ? reqbody : await fetch("join",{body:JSON.stringify({id:gid,name:name}),headers:{"Content-Type":"application/json"},method:"POST"}).then(e=>e.json());
+const body = reqbody ? reqbody : await fetch("https://doyle31.com/join",{body:JSON.stringify({id:gid,name:name}),headers:{"Content-Type":"application/json"},method:"POST"}).then(e=>e.json());
 updateStatus("Connecting to game...");
 if(body.success){
 const liveApp = initializeApp({
