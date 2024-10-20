@@ -346,7 +346,7 @@ break;
 }
 document.querySelector("#drag").addEventListener("mouseup",e=>{dragging=false;});
 async function genToken(gid,name){
-const {fbToken,fbShardURL} = await fetch("join",{body:JSON.stringify({id:gid,name:name}),headers:{"Content-Type":"application/json"},method:"POST"}).then(e=>e.json());
+const {fbToken,fbShardURL} = await fetch("/rojolet/join",{body:JSON.stringify({id:gid,name:name}),headers:{"Content-Type":"application/json"},method:"POST"}).then(e=>e.json());
 return {gid,name,fbToken,fbShardURL};
 }
 async function useToken(token){
