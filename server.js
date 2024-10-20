@@ -8,7 +8,7 @@ global.cookiew = resp.headers["set-cookie"][0].split(";")[0];
 console.log("Blooket Cookie Ready!");
 });
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, "/index.html"));
+  res.sendFile(path.join(__dirname, "/rojolet.html"));
 });
 app.get('/script.js', (req, res) => {
   res.sendFile(path.join(__dirname, "/script.js"));
