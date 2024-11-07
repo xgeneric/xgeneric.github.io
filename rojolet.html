@@ -1,62 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blooket Premium</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
-</head>
-<body>
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Image Overlay</title>
 <style>
-  /* Centering the container and ensuring it adjusts to the main image's size */
   .image-container {
     position: relative;
     width: fit-content;
     margin: auto;
   }
 
-  /* Main background image */
   .background-image {
     width: 100%;
     display: block;
   }
 
-  /* Eggie image slightly to the left inside */
+  /* Eggie image in the lower-left area (purple box) */
   .eggie {
     position: absolute;
-    left: 10%; /* Adjust this value as needed */
-    top: 20%;  /* Adjust as needed */
-    width: 15%; /* Adjust the size as needed */
+    left: 18%; /* Adjusted to match the purple box */
+    top: 65%;  /* Adjusted to match the purple box */
+    width: 8%; /* Adjust size as needed */
   }
 
-  /* Colonthree image much more to the right */
+  /* Colonthree image near the right hand (red box) */
   .colonthree {
     position: absolute;
-    right: 5%; /* Adjust as needed */
-    top: 30%;  /* Adjust as needed */
-    width: 20%; /* Adjust the size as needed */
+    left: 70%; /* Adjusted to match the red box */
+    top: 65%;  /* Adjusted to match the red box */
+    width: 15%; /* Adjust size as needed */
   }
 </style>
 </head>
@@ -66,13 +39,12 @@
   <!-- Main background image -->
   <img src="red-pill-of-awareness-or-blue-pill-of-unconsciousness.jpg" alt="Background Image" class="background-image">
   
-  <!-- Eggie image positioned slightly to the left inside -->
+  <!-- Eggie image positioned at the lower left (purple box area) -->
   <img src="eggie.png" alt="Eggie" class="eggie">
   
-  <!-- Colonthree image positioned much more to the right, overlapping -->
+  <!-- Colonthree image positioned near the right hand (red box area) -->
   <img src="colonthree.jpg" alt="Colonthree" class="colonthree">
 </div>
 
 </body>
 </html>
-
