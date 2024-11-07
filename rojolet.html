@@ -21,3 +21,58 @@
 <body>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Overlay</title>
+<style>
+  /* Centering the container and ensuring it adjusts to the main image's size */
+  .image-container {
+    position: relative;
+    width: fit-content;
+    margin: auto;
+  }
+
+  /* Main background image */
+  .background-image {
+    width: 100%;
+    display: block;
+  }
+
+  /* Eggie image slightly to the left inside */
+  .eggie {
+    position: absolute;
+    left: 10%; /* Adjust this value as needed */
+    top: 20%;  /* Adjust as needed */
+    width: 15%; /* Adjust the size as needed */
+  }
+
+  /* Colonthree image much more to the right */
+  .colonthree {
+    position: absolute;
+    right: 5%; /* Adjust as needed */
+    top: 30%;  /* Adjust as needed */
+    width: 20%; /* Adjust the size as needed */
+  }
+</style>
+</head>
+<body>
+
+<div class="image-container">
+  <!-- Main background image -->
+  <img src="red-pill-of-awareness-or-blue-pill-of-unconsciousness.jpg" alt="Background Image" class="background-image">
+  
+  <!-- Eggie image positioned slightly to the left inside -->
+  <img src="eggie.png" alt="Eggie" class="eggie">
+  
+  <!-- Colonthree image positioned much more to the right, overlapping -->
+  <img src="colonthree.jpg" alt="Colonthree" class="colonthree">
+</div>
+
+</body>
+</html>
+
