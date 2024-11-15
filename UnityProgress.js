@@ -22,3 +22,5 @@ function UnityProgress(gameInstance, progress) {
   if (progress == 1)
     gameInstance.logo.style.display = gameInstance.progress.style.display = "none";
 }
+
+
