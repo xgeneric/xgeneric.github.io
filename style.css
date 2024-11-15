@@ -1,0 +1,32 @@
+.cheat-container {
+    margin: 15px;
+    position: absolute;
+    z-index: 1;
+    background-color: #f0f0f0df;
+    padding: 20px;
+    font-size: 1.3em;
+    font-family: monospace;
+    font-weight: bold;
+    user-select: none;
+    width: 16%;
+}
+.title {
+    font-size: 1.2em;
+    text-align: center;
+    margin-bottom: 1em;
+}
+.toggle {
+color: red;
+}
+.toggle[enabled] {
+color: #20b800;
+}
+.dropdown-arrow {
+display: inline;
+margin-right:0.6em;
+cursor:pointer;
+}
+.content {
+margin-left: 6px;
+display: none;
+}
