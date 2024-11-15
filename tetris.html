@@ -1,0 +1,829 @@
+<html><head><base href="https://tetris-ultimate.websim.io/">
+<title>Tetris Ultimate</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #0a0a2a;
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    overflow: hidden;
+  }
+  #game-container {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  }
+  #tetris-board {
+    width: 300px;
+    height: 600px;
+    border: 2px solid #00ffff;
+    background-color: rgba(0, 0, 0, 0.8);
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.5);
+  }
+  .cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
+    position: absolute;
+    transition: all 0.1s ease;
+  }
+  #game-info {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #score, #level, #speed {
+    font-size: 24px;
+    margin: 10px 0;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
+  }
+  #next-piece {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    border: 1px solid #00ffff;
+  }
+  #next-piece-display {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    margin-bottom: 10px;
+  }
+  #next-piece-name {
+    text-align: center;
+    font-size: 18px;
+    color: #00ffff;
+  }
+  .piece {
+    position: absolute;
+    transition: all 0.1s ease;
+  }
+  .exploding {
+    animation: explode 0.5s ease-out;
+  }
+  @keyframes explode {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+  }
+  .explosion-particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    animation: particle 0.5s ease-out;
+  }
+  @keyframes particle {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  }
+  .row-clear {
+    animation: rowClear 0.5s ease-out;
+  }
+  @keyframes rowClear {
+    0% { transform: scaleX(1); opacity: 1; }
+    50% { transform: scaleX(1.2); opacity: 0.5; }
+    100% { transform: scaleX(0); opacity: 0; }
+  }
+  .expanding {
+    animation: expand 0.5s ease-out;
+  }
+  @keyframes expand {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  #game-title {
+    position: absolute;
+    top: 20px;
+    font-size: 48px;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+  }
+  #controls {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #aaa;
+  }
+  .glow {
+    animation: glow 1s ease-in-out infinite alternate;
+  }
+  @keyframes glow {
+    from { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; }
+    to { text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #00ffff, 0 0 40px #00ffff; }
+  }
+  .snake {
+    background-color: #00ff00;
+    border: 1px solid #00cc00;
+    box-shadow: 0 0 5px #00ff00;
+  }
+  .row-clearing {
+    animation: rowClearing 0.5s ease-out;
+  }
+  @keyframes rowClearing {
+    0% { transform: scaleY(1); filter: brightness(1); }
+    50% { transform: scaleY(1.5); filter: brightness(2); }
+    100% { transform: scaleY(0); filter: brightness(2); }
+  }
+  .nuke {
+    background-color: #ff0000;
+    border: 1px solid #cc0000;
+    box-shadow: 0 0 10px #ff0000;
+  }
+  .mushroom-cloud {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,165,0,0.8) 0%, rgba(255,69,0,0.8) 50%, rgba(139,0,0,0.8) 100%);
+    animation: mushroomCloud 2s ease-out;
+    z-index: 1000;
+  }
+  @keyframes mushroomCloud {
+    0% { width: 0; height: 0; opacity: 1; }
+    50% { width: 240px; height: 240px; opacity: 0.8; }
+    100% { width: 300px; height: 300px; opacity: 0; }
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="game-title" class="glow">Tetrӏs Ultimate</div>
+<div id="game-container">
+  <div id="tetris-board"></div>
+  <div id="game-info">
+    <div id="score">Score: <span id="score-value">0</span></div>
+    <div id="level">Level: <span id="level-value">1</span></div>
+    <div id="speed">Speed: <span id="speed-value">1.00x</span></div>
+    <div id="next-piece">
+      <div id="next-piece-display"></div>
+      <div id="next-piece-name"></div>
+    </div>
+    <div id="controls">
+      <p>← → : Move</p>
+      <p>↑ : Rotate</p>
+      <p>↓ : Soft Drop</p>
+      <p>Space : Hard Drop</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+<script>
+const BOARD_WIDTH = 10;
+const BOARD_HEIGHT = 20;
+const CELL_SIZE = 30;
+const INITIAL_SPEED = 1000;
+const SPEED_INCREASE_FACTOR = 0.95;
+const SPEED_INCREASE_INTERVAL = 30000; // 30 seconds
+const LEVEL_UP_SCORE = 1000;
+
+let board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+let currentPiece;
+let nextPiece;
+let score = 0;
+let level = 1;
+let gameSpeed = INITIAL_SPEED;
+let gameInterval;
+let lastSpeedIncreaseTime = Date.now();
+let snake = null;
+let snakeInterval;
+
+const pieces = [
+  { shape: [[1,1],[1,1]], name: "Square" },
+  { shape: [[1,1,1,1]], name: "Line" },
+  { shape: [[1,1,1],[0,1,0]], name: "T" },
+  { shape: [[1,1,0],[0,1,1]], name: "S" },
+  { shape: [[0,1,1],[1,1,0]], name: "Z" },
+  { shape: [[1,0,0],[1,1,1]], name: "L" },
+  { shape: [[0,0,1],[1,1,1]], name: "J" }
+];
+
+const colors = [
+  '#00f0f0', '#f0f000', '#f000f0', '#00f000', 
+  '#f00000', '#0000f0', '#f0a000', '#0080ff', '#ffffff', '#00ff00', '#ff0000'
+];
+
+function createBoard() {
+  const board = document.getElementById('tetris-board');
+  for (let y = 0; y < BOARD_HEIGHT; y++) {
+    for (let x = 0; x < BOARD_WIDTH; x++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.style.left = x * CELL_SIZE + 'px';
+      cell.style.top = y * CELL_SIZE + 'px';
+      board.appendChild(cell);
+    }
+  }
+}
+
+function drawBoard() {
+  const cells = document.querySelectorAll('.cell');
+  board.flat().forEach((value, index) => {
+    cells[index].style.backgroundColor = value ? colors[value - 1] : 'transparent';
+    cells[index].style.boxShadow = value ? `0 0 5px ${colors[value - 1]}` : 'none';
+    cells[index].style.border = value ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(255,255,255,0.1)';
+    cells[index].classList.toggle('snake', value === 10);
+    cells[index].classList.toggle('nuke', value === 11);
+  });
+}
+
+function createPiece() {
+  const random = Math.random();
+  if (random < 0.03) { // 3% chance for Nuke
+    return {
+      shape: [[1]],
+      color: 11,
+      x: Math.floor(BOARD_WIDTH / 2),
+      y: 0,
+      isExploding: false,
+      isRowClear: false,
+      isExpander: false,
+      isNuke: true,
+      name: "Nuke"
+    };
+  } else if (random < 0.08) { // 5% chance for Snake
+    return createSnake();
+  } else if (random < 0.18) {
+    return {
+      shape: [[1]],
+      color: 8,
+      x: Math.floor(BOARD_WIDTH / 2),
+      y: 0,
+      isExploding: false,
+      isRowClear: true,
+      isExpander: false,
+      isNuke: false,
+      name: "Row Clearer"
+    };
+  } else if (random < 0.28) {
+    return {
+      shape: [[1]],
+      color: 9,
+      x: Math.floor(BOARD_WIDTH / 2),
+      y: 0,
+      isExploding: false,
+      isRowClear: false,
+      isExpander: true,
+      isNuke: false,
+      name: "Expander"
+    };
+  }
+
+  const pieceIndex = Math.floor(Math.random() * pieces.length);
+  const piece = pieces[pieceIndex];
+  const color = pieceIndex + 1;
+  const isExploding = Math.random() < 0.2; // 1/5 chance for exploding piece
+  
+  return {
+    shape: piece.shape,
+    color: color,
+    x: Math.floor(BOARD_WIDTH / 2) - Math.floor(piece.shape[0].length / 2),
+    y: 0,
+    isExploding: isExploding,
+    isRowClear: false,
+    isExpander: false,
+    isNuke: false,
+    name: isExploding ? "Exploding " + piece.name : piece.name
+  };
+}
+
+function createSnake() {
+  snake = {
+    body: [[5, 0], [5, 1], [5, 2]],
+    direction: [0, 1],
+    color: 10,
+    cubesEaten: 0,
+    name: "Snake"
+  };
+  return snake;
+}
+
+function drawPiece() {
+  if (currentPiece === snake) {
+    drawSnake();
+  } else {
+    currentPiece.shape.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value) {
+          const cellX = currentPiece.x + x;
+          const cellY = currentPiece.y + y;
+          if (cellY >= 0) {
+            const index = cellY * BOARD_WIDTH + cellX;
+            const cell = document.querySelectorAll('.cell')[index];
+            cell.style.backgroundColor = colors[currentPiece.color - 1];
+            cell.style.boxShadow = `0 0 5px ${colors[currentPiece.color - 1]}`;
+            cell.style.border = '1px solid rgba(255,255,255,0.3)';
+            if (currentPiece.isExploding) {
+              cell.style.border = '2px solid white';
+            } else if (currentPiece.isRowClear) {
+              cell.style.boxShadow = '0 0 10px #0080ff';
+            } else if (currentPiece.isExpander) {
+              cell.style.boxShadow = '0 0 10px #ffffff';
+            } else if (currentPiece.isNuke) {
+              cell.style.boxShadow = '0 0 10px #ff0000';
+            }
+          }
+        }
+      });
+    });
+  }
+}
+
+function drawSnake() {
+  snake.body.forEach((segment, index) => {
+    const [x, y] = segment;
+    if (y >= 0) {
+      const cellIndex = y * BOARD_WIDTH + x;
+      const cell = document.querySelectorAll('.cell')[cellIndex];
+      cell.style.backgroundColor = colors[snake.color - 1];
+      cell.style.boxShadow = `0 0 5px ${colors[snake.color - 1]}`;
+      cell.style.border = '1px solid rgba(255,255,255,0.3)';
+      cell.classList.add('snake');
+    }
+  });
+}
+
+function drawNextPiece() {
+  const nextPieceDisplay = document.getElementById('next-piece-display');
+  nextPieceDisplay.innerHTML = '';
+  if (nextPiece === snake) {
+    const snakeCell = document.createElement('div');
+    snakeCell.className = 'cell snake';
+    snakeCell.style.left = '45px';
+    snakeCell.style.top = '45px';
+    nextPieceDisplay.appendChild(snakeCell);
+  } else {
+    nextPiece.shape.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.style.left = x * 30 + 'px';
+          cell.style.top = y * 30 + 'px';
+          cell.style.backgroundColor = colors[nextPiece.color - 1];
+          cell.style.boxShadow = `0 0 5px ${colors[nextPiece.color - 1]}`;
+          cell.style.border = '1px solid rgba(255,255,255,0.3)';
+          cell.style.position = 'absolute';
+          if (nextPiece.isNuke) {
+            cell.classList.add('nuke');
+          }
+          nextPieceDisplay.appendChild(cell);
+        }
+      });
+    });
+  }
+  document.getElementById('next-piece-name').textContent = nextPiece.name;
+}
+
+function canMoveTo(newX, newY, piece = currentPiece.shape) {
+  return piece.every((row, y) => 
+    row.every((value, x) => 
+      !value || (
+        newY + y >= 0 &&
+        newY + y < BOARD_HEIGHT &&
+        newX + x >= 0 &&
+        newX + x < BOARD_WIDTH &&
+        !board[newY + y][newX + x]
+      )
+    )
+  );
+}
+
+function rotate() {
+  if (!currentPiece.isRowClear && !currentPiece.isExpander && !currentPiece.isNuke && currentPiece !== snake) {
+    const rotated = currentPiece.shape[0].map((_, i) => 
+      currentPiece.shape.map(row => row[i]).reverse()
+    );
+    if (canMoveTo(currentPiece.x, currentPiece.y, rotated)) {
+      currentPiece.shape = rotated;
+    } else {
+      // Wall kick
+      if (canMoveTo(currentPiece.x + 1, currentPiece.y, rotated)) {
+        currentPiece.x++;
+        currentPiece.shape = rotated;
+      } else if (canMoveTo(currentPiece.x - 1, currentPiece.y, rotated)) {
+        currentPiece.x--;
+        currentPiece.shape = rotated;
+      }
+    }
+  }
+}
+
+function moveDown() {
+  if (currentPiece === snake) {
+    moveSnake();
+  } else if (canMoveTo(currentPiece.x, currentPiece.y + 1)) {
+    currentPiece.y++;
+  } else {
+    placePiece();
+    if (currentPiece.isExploding) {
+      explodePiece();
+    } else if (currentPiece.isRowClear) {
+      clearRow(currentPiece.y);
+    } else if (currentPiece.isExpander) {
+      expandPiece();
+    } else if (currentPiece.isNuke) {
+      nukeExplosion();
+    }
+    clearLines();
+    currentPiece = nextPiece;
+    nextPiece = createPiece();
+    drawNextPiece();
+    if (!canMoveTo(currentPiece.x, currentPiece.y)) {
+      gameOver();
+    }
+  }
+  drawBoard();
+  drawPiece();
+  
+  // Check if it's time to increase the speed
+  const currentTime = Date.now();
+  if (currentTime - lastSpeedIncreaseTime > SPEED_INCREASE_INTERVAL) {
+    increaseSpeed();
+    lastSpeedIncreaseTime = currentTime;
+  }
+}
+
+function moveSnake() {
+  const head = snake.body[snake.body.length - 1];
+  const newHead = [head[0] + snake.direction[0], head[1] + snake.direction[1]];
+
+  if (isValidSnakeMove(newHead)) {
+    snake.body.push(newHead);
+    if (board[newHead[1]][newHead[0]] !== 0) {
+      snake.cubesEaten++;
+      board[newHead[1]][newHead[0]] = 0;
+      score += 10;
+      updateScore();
+    } else {
+      snake.body.shift();
+    }
+
+    if (snake.cubesEaten >= 5) {
+      explodeSnake();
+    }
+  } else {
+    explodeSnake();
+  }
+}
+
+function isValidSnakeMove(newHead) {
+  return newHead[0] >= 0 && newHead[0] < BOARD_WIDTH &&
+         newHead[1] >= 0 && newHead[1] < BOARD_HEIGHT &&
+         !snake.body.some(segment => segment[0] === newHead[0] && segment[1] === newHead[1]);
+}
+
+function explodeSnake() {
+  snake.body.forEach(segment => {
+    createExplosionParticles(segment[0], segment[1]);
+  });
+
+  // Clear the snake from the board
+  snake.body.forEach(segment => {
+    board[segment[1]][segment[0]] = 0;
+  });
+
+  // End the snake's movement
+  clearInterval(snakeInterval);
+  snake = null;
+  currentPiece = nextPiece;
+  nextPiece = createPiece();
+  drawNextPiece();
+}
+
+function placePiece() {
+  currentPiece.shape.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        board[currentPiece.y + y][currentPiece.x + x] = currentPiece.color;
+      }
+    });
+  });
+}
+
+function createExplosionParticles(x, y) {
+  const tetrisBoard = document.getElementById('tetris-board');
+  for (let i = 0; i < 20; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'explosion-particle';
+    particle.style.backgroundColor = colors[currentPiece.color - 1];
+    particle.style.left = (x * CELL_SIZE + CELL_SIZE / 2) + 'px';
+    particle.style.top = (y * CELL_SIZE + CELL_SIZE / 2) + 'px';
+    
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * 50 + 20;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance;
+    
+    particle.style.setProperty('--tx', tx + 'px');
+    particle.style.setProperty('--ty', ty + 'px');
+    
+    tetrisBoard.appendChild(particle);
+    
+    setTimeout(() => {
+      tetrisBoard.removeChild(particle);
+    }, 500);
+  }
+}
+
+function explodePiece() {
+  const explodingCells = [];
+  currentPiece.shape.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        const cellX = currentPiece.x + x;
+        const cellY = currentPiece.y + y;
+        explodingCells.push({x: cellX, y: cellY});
+        createExplosionParticles(cellX, cellY);
+        // Check adjacent cells
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const newX = cellX + dx;
+            const newY = cellY + dy;
+            if (newX >= 0 && newX < BOARD_WIDTH && newY >= 0 && newY < BOARD_HEIGHT) {
+              explodingCells.push({x: newX, y: newY});
+              createExplosionParticles(newX, newY);
+            }
+          }
+        }
+      }
+    });
+  });
+
+  // Remove duplicates
+  const uniqueExplodingCells = _.uniqWith(explodingCells, _.isEqual);
+
+  // Animate explosion
+  uniqueExplodingCells.forEach(cell => {
+    const index = cell.y * BOARD_WIDTH + cell.x;
+    const domCell = document.querySelectorAll('.cell')[index];
+    domCell.classList.add('exploding');
+  });
+
+  // Clear exploded cells after animation
+  setTimeout(() => {
+    uniqueExplodingCells.forEach(cell => {
+      board[cell.y][cell.x] = 0;
+      const index = cell.y * BOARD_WIDTH + cell.x;
+      const domCell = document.querySelectorAll('.cell')[index];
+      domCell.classList.remove('exploding');
+    });
+    drawBoard();
+  }, 500);
+}
+
+function clearRow(row) {
+  // Animate row clear
+  const cells = document.querySelectorAll('.cell');
+  for (let x = 0; x < BOARD_WIDTH; x++) {
+    const index = row * BOARD_WIDTH + x;
+    cells[index].classList.add('row-clearing');
+  }
+
+  // Clear the row and add points
+  setTimeout(() => {
+    board.splice(row, 1);
+    board.unshift(Array(BOARD_WIDTH).fill(0));
+    score += 100;
+    updateScore();
+    drawBoard();
+    
+    // Remove the animation class
+    for (let x = 0; x < BOARD_WIDTH; x++) {
+      const index = row * BOARD_WIDTH + x;
+      cells[index].classList.remove('row-clearing');
+    }
+  }, 500);
+}
+
+function expandPiece() {
+  const expandingCells = [];
+  const centerX = currentPiece.x;
+  const centerY = currentPiece.y;
+
+  for (let dy = -3; dy <= 3; dy++) {
+    for (let dx = -3; dx <= 3; dx++) {
+      if (Math.abs(dx) + Math.abs(dy) <= 3) { // Manhattan distance <= 3
+        const newX = centerX + dx;
+        const newY = centerY + dy;
+        if (newX >= 0 && newX < BOARD_WIDTH && newY >= 0 && newY < BOARD_HEIGHT && board[newY][newX] === 0) {
+          expandingCells.push({x: newX, y: newY});
+        }
+      }
+    }
+  }
+
+  // Animate expansion
+  expandingCells.forEach(cell => {
+    const index = cell.y * BOARD_WIDTH + cell.x;
+    const domCell = document.querySelectorAll('.cell')[index];
+    domCell.classList.add('expanding');
+    domCell.style.backgroundColor = colors[currentPiece.color - 1];
+  });
+
+  // Fill expanded cells after animation
+  setTimeout(() => {
+    expandingCells.forEach(cell => {
+      board[cell.y][cell.x] = currentPiece.color;
+      const index = cell.y * BOARD_WIDTH + cell.x;
+      const domCell = document.querySelectorAll('.cell')[index];
+      domCell.classList.remove('expanding');
+    });
+    drawBoard();
+  }, 500);
+}
+
+function nukeExplosion() {
+  const centerX = currentPiece.x;
+  const centerY = currentPiece.y;
+  const radius = 4;
+
+  // Create mushroom cloud effect
+  const mushroomCloud = document.createElement('div');
+  mushroomCloud.className = 'mushroom-cloud';
+  mushroomCloud.style.left = (centerX * CELL_SIZE - 120) + 'px';
+  mushroomCloud.style.top = (centerY * CELL_SIZE - 120) + 'px';
+  document.getElementById('tetris-board').appendChild(mushroomCloud);
+
+  // Clear cells within the radius
+  for (let dy = -radius; dy <= radius; dy++) {
+    for (let dx = -radius; dx <= radius; dx++) {
+      const distance = Math.sqrt(dx*dx + dy*dy);
+      if (distance <= radius) {
+        const newX = centerX + dx;
+        const newY = centerY + dy;
+        if (newX >= 0 && newX < BOARD_WIDTH && newY >= 0 && newY < BOARD_HEIGHT) {
+          board[newY][newX] = 0;
+          createExplosionParticles(newX, newY);
+        }
+      }
+    }
+  }
+
+  // Remove mushroom cloud after animation
+  setTimeout(() => {
+    document.getElementById('tetris-board').removeChild(mushroomCloud);
+    drawBoard();
+  }, 2000);
+
+  // Add score for the nuke explosion
+  score += 500;
+  updateScore();
+}
+
+function clearLines() {
+  let linesCleared = 0;
+  const linesToClear = [];
+
+  for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
+    if (board[y].every(cell => cell !== 0)) {
+      linesToClear.push(y);
+      linesCleared++;
+    }
+  }
+
+  if (linesCleared > 0) {
+    // Animate row clearing
+    const cells = document.querySelectorAll('.cell');
+    linesToClear.forEach(row => {
+      for (let x = 0; x < BOARD_WIDTH; x++) {
+        const index = row * BOARD_WIDTH + x;
+        cells[index].classList.add('row-clearing');
+      }
+    });
+
+    // Clear the rows and add points after animation
+    setTimeout(() => {
+      linesToClear.forEach(row => {
+        board.splice(row, 1);
+        board.unshift(Array(BOARD_WIDTH).fill(0));
+      });
+      score += linesCleared * linesCleared * 100;
+      updateScore();
+      drawBoard();
+
+      // Remove the animation class
+      linesToClear.forEach(row => {
+        for (let x = 0; x < BOARD_WIDTH; x++) {
+          const index = row * BOARD_WIDTH + x;
+          cells[index].classList.remove('row-clearing');
+        }
+      });
+    }, 500);
+  }
+}
+
+function updateScore() {
+  document.getElementById('score-value').textContent = score;
+  if (score >= level * LEVEL_UP_SCORE) {
+    levelUp();
+  }
+}
+
+function levelUp() {
+  level++;
+  document.getElementById('level-value').textContent = level;
+  increaseSpeed();
+}
+
+function increaseSpeed() {
+  gameSpeed *= SPEED_INCREASE_FACTOR;
+  clearInterval(gameInterval);
+  gameInterval = setInterval(moveDown, gameSpeed);
+  document.getElementById('speed-value').textContent = (INITIAL_SPEED / gameSpeed).toFixed(2) + 'x';
+}
+
+function gameOver() {
+  clearInterval(gameInterval);
+  if (snakeInterval) clearInterval(snakeInterval);
+  alert('Game Over! Your score: ' + score);
+  board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+  score = 0;
+  level = 1;
+  gameSpeed = INITIAL_SPEED;
+  updateScore();
+  document.getElementById('level-value').textContent = level;
+  document.getElementById('speed-value').textContent = '1.00x';
+  nextPiece = createPiece();
+  drawNextPiece();
+  startGame();
+}
+
+function hardDrop() {
+  if (currentPiece !== snake) {
+    while (canMoveTo(currentPiece.x, currentPiece.y + 1)) {
+      currentPiece.y++;
+      score += 2;
+    }
+    moveDown();
+  }
+}
+
+function startGame() {
+  createBoard();
+  nextPiece = createPiece();
+  currentPiece = createPiece();
+  drawNextPiece();
+  gameInterval = setInterval(moveDown, gameSpeed);
+  lastSpeedIncreaseTime = Date.now();
+}
+
+document.addEventListener('keydown', event => {
+  if (currentPiece === snake) {
+    switch(event.key) {
+      case 'ArrowLeft':
+        snake.direction = [-1, 0];
+        break;
+      case 'ArrowRight':
+        snake.direction = [1, 0];
+        break;
+      case 'ArrowDown':
+        snake.direction = [0, 1];
+        break;
+      case 'ArrowUp':
+        snake.direction = [0, -1];
+        break;
+    }
+  } else {
+    switch(event.key) {
+      case 'ArrowLeft':
+        if (canMoveTo(currentPiece.x - 1, currentPiece.y)) currentPiece.x--;
+        break;
+      case 'ArrowRight':
+        if (canMoveTo(currentPiece.x + 1, currentPiece.y)) currentPiece.x++;
+        break;
+      case 'ArrowDown':
+        moveDown();
+        score += 1;
+        updateScore();
+        break;
+      case 'ArrowUp':
+        rotate();
+        break;
+      case ' ':
+        hardDrop();
+        break;
+    }
+  }
+  drawBoard();
+  drawPiece();
+});
+
+startGame();
+</script>
+</body></html>
