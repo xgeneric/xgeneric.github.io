@@ -270,7 +270,8 @@ lessons.forEach(lesson => {
     <div class="lesson-info">
       <h3 class="lesson-title">${lesson.title}</h3>
       <p class="lesson-desc">${lesson.description}</p>
-      <button class="pIay-btn" onclick="window.open('${lesson.url}', '_blank')">Play Now</button>
+      <button class="play-btn" onclick="(function(){var win = window.open('about:blank'); var iframe = win.document.createElement('iframe'); iframe.style.width = '100%'; iframe.style.height = '100%'; iframe.style.border = 'none'; iframe.src = '${lesson.url}'; win.document.body.appendChild(iframe);})()">PIay Now</button>
+
     </div>
   `;
   
