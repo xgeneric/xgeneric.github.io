@@ -144,7 +144,7 @@ body {
 }
 
 .featured {
-  background: linear-gradient(45deg, rgba(var(--primary-rgb), 0.8), rgba(var(--secondary-rgb), 0.8));
+  background: linear-gradient(45deg, var(--primary), var(--secondary));
   padding: 2rem;
   border-radius: 15px;
   margin-bottom: 2rem;
@@ -152,7 +152,6 @@ body {
   align-items: center;
   gap: 2rem;
 }
-
 
 .featured-content {
   flex: 1;
@@ -270,7 +269,7 @@ lessons.forEach(lesson => {
     <div class="lesson-info">
       <h3 class="lesson-title">${lesson.title}</h3>
       <p class="lesson-desc">${lesson.description}</p>
-      <button class="pIay-btn" onclick="window.open('${lesson.url}', '_blank')">Play Now</button>
+      <button class="pIay-btn" onclick="window.location.href='${lesson.url}'">РІау Νоw</button>
     </div>
   `;
   
