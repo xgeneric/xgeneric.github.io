@@ -1,0 +1,1775 @@
+<html><head><base href="diep.io">
+<title>Diep.io</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+    background: #161616;
+    overflow: hidden;
+}
+#gameCanvas {
+    cursor: crosshair;
+    display: block;
+    margin: auto;
+    background: #1b1b1b;
+}
+.stats {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+}
+.level {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+}
+.pause-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    display: none;
+    z-index: 1000;
+}
+.pause-text {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+}
+.game-over {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    display: none;
+    z-index: 1000;
+}
+.healthbar {
+    position: absolute;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+}
+.healthbar-fill {
+    height: 100%;
+    background: #0f0;
+    border-radius: 2px;
+    transition: width 0.2s;
+}
+.upgrade-menu {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+}
+.upgrade-button {
+    background: #444;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100px;
+}
+.upgrade-button:hover {
+    background: #666;
+}
+.upgrade-button:disabled {
+    background: #333;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+.upgrade-points {
+    position: fixed;
+    top: 40px;
+    right: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+}
+.auto-cannon-menu {
+    position: fixed;
+    right: 20px;
+    bottom: 100px; 
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+.tank-select-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    z-index: 1000;
+}
+.tank-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+.tank-option {
+    background: #444;
+    border: none;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.tank-option:hover {
+    background: #666;
+}
+.tank-desc {
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+</style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<div class="stats">Score: <span id="score">0</span></div>
+<div class="level">Level: <span id="level">1</span></div>
+<div class="pause-text">Press P to pause</div>
+<div class="pause-menu" id="pauseMenu">
+    <h2>GAME PAUSED</h2>
+    <p>Press P to resume</p>
+</div>
+<div class="game-over" id="gameOver">
+    <h2>GAME OVER</h2>
+    <p>Score: <span id="finalScore">0</span></p>
+    <p>Press SPACE to restart</p>
+</div>
+<div class="tank-select-menu" id="tankSelectMenu" style="display: none;">
+    <h2>Choose Tank Class</h2>
+    <div class="tank-options">
+        <button class="tank-option" data-tank="TWIN">
+            Twin
+            <span class="tank-desc">Double barrels, faster firing</span>
+        </button>
+        <button class="tank-option" data-tank="SNIPER">
+            Sniper
+            <span class="tank-desc">Long range, high damage</span>
+        </button>
+        <button class="tank-option" data-tank="MACHINE_GUN">
+            Machine Gun
+            <span class="tank-desc">Fast firing, spread bullets</span>
+        </button>
+        <button class="tank-option" data-tank="DESTROYER">
+            Destroyer
+            <span class="tank-desc">Slow but powerful</span>
+        </button>
+        <button class="tank-option" data-tank="TRIPLE">
+            Triple Shot
+            <span class="tank-desc">Three barrels</span>
+        </button>
+    </div>
+</div>
+<div class="upgrade-points">Upgrade Points: <span id="upgradePoints">0</span></div>
+<div class="upgrade-menu">
+    <button class="upgrade-button" id="bulletSpeed">
+        Bullet Speed
+        <span id="bulletSpeedLevel">0</span>
+    </button>
+    <button class="upgrade-button" id="bulletPenetration">
+        Penetration
+        <span id="bulletPenetrationLevel">0</span>
+    </button>
+    <button class="upgrade-button" id="bodyHealth">
+        Health
+        <span id="bodyHealthLevel">0</span>
+    </button>
+    <button class="upgrade-button" id="movementSpeed">
+        Movement
+        <span id="movementSpeedLevel">0</span>
+    </button>
+    <button class="upgrade-button" id="bodyDamage">
+        Body Damage
+        <span id="bodyDamageLevel">0</span>
+    </button>
+    <button class="upgrade-button" id="firingSpeed">
+        Firing Speed
+        <span id="firingSpeedLevel">0</span>
+    </button>
+</div>
+<div class="auto-cannon-menu">
+    <button class="upgrade-button" id="autoCannon">
+        Auto Cannon
+        <span id="autoCannonLevel">0</span>
+    </button>
+    <button class="upgrade-button" id="aura">
+        Damage Aura
+        <span id="auraLevel">0</span>
+    </button>
+</div>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Set canvas size to window size
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+// Initial resize
+resizeCanvas();
+
+// Add resize listener
+window.addEventListener('resize', resizeCanvas);
+
+let cameraX = 0;
+let cameraY = 0;
+let mouseX = 0;
+let mouseY = 0;
+let isMouseDown = false;
+let lastShootTime = Date.now();
+let shootCooldown = 150;
+let isPaused = false;
+const NO_SPAWN_RADIUS = 200;
+
+// Add mouse event listeners
+canvas.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+canvas.addEventListener('mousedown', () => {
+    isMouseDown = true;
+});
+
+canvas.addEventListener('mouseup', () => {
+    isMouseDown = false;
+});
+
+const pauseMenu = document.getElementById('pauseMenu');
+const scoreEl = document.getElementById('score');
+const levelEl = document.getElementById('level');
+
+const GAME_CONFIG = {
+    TANKS: {
+        BASIC: {
+            barrelCount: 1,
+            barrelWidth: 0.8,
+            barrelLength: 2,
+            baseSpeed: 5,
+            baseHealth: 100,
+            baseDamage: 10,
+            minLevel: 1,
+            bulletSize: 1
+        },
+        TWIN: {
+            barrelCount: 2,
+            barrelWidth: 0.8,
+            barrelLength: 2,
+            barrelSpacing: 0.6,
+            baseSpeed: 5,
+            baseHealth: 100,
+            baseDamage: 8,
+            minLevel: 5,
+            bulletSize: 0.8
+        },
+        SNIPER: {
+            barrelCount: 1,
+            barrelWidth: 0.6,
+            barrelLength: 2.5,
+            baseSpeed: 4.5,
+            baseHealth: 90,
+            baseDamage: 15,
+            bulletSpeedMultiplier: 1.5,
+            bulletRangeMultiplier: 1.5,
+            minLevel: 5,
+            bulletSize: 0.7
+        },
+        MACHINE_GUN: {
+            barrelCount: 1,
+            barrelWidth: 1.2,
+            barrelLength: 1.8,
+            baseSpeed: 4.5,
+            baseHealth: 100,
+            baseDamage: 7,
+            minLevel: 5,
+            shootCooldown: 50,
+            bulletSpread: 0.3,
+            bulletSize: 0.9
+        },
+        DESTROYER: {
+            barrelCount: 1,
+            barrelWidth: 1.5,
+            barrelLength: 2,
+            baseSpeed: 4,
+            baseHealth: 120,
+            baseDamage: 25,
+            minLevel: 5,
+            shootCooldown: 300,
+            bulletSize: 2.5
+        },
+        TRIPLE: {
+            barrelCount: 3,
+            barrelWidth: 0.7,
+            barrelLength: 2,
+            barrelSpacing: 0.4,
+            baseSpeed: 4.5,
+            baseHealth: 100,
+            baseDamage: 7,
+            minLevel: 5,
+            bulletSize: 0.8
+        }
+    },
+    SHAPES: {
+        TRIANGLE: {
+            code: '3S25H30P5C#ffff00B#808000D5',
+            points: 5
+        },
+        SQUARE: {
+            code: '4S30H50P10C#ff0000B#800000D10',
+            points: 10
+        },
+        PENTAGON: {
+            code: '5S50H200P30C#0000ffB#000080D15',
+            points: 15
+        },
+        HEXAGON: {
+            code: '6S70H400P100C#000066B#000033D25',
+            points: 20
+        },
+        HEPTAGON: {
+            code: '7S85H600P200C#4B0082B#2E0051D30',
+            points: 25
+        },
+        OCTAGON: {
+            code: '8S100H800P300C#800080B#4B004BD35',
+            points: 30
+        },
+        NONAGON: {
+            code: '9S115H1000P400C#4169E1B#27408BD40',
+            points: 35
+        },
+        DECAGON: {
+            code: '10S130H1500P500C#008B8BB#005353D45',
+            points: 40
+        },
+        HENDECAGON: {
+            code: '11S145H2000P750C#2F4F4FB#1C2F2FD50',
+            points: 45
+        },
+        DODECAGON: {
+            code: '12S160H2500P1000C#8B4513B#532A0BD55',
+            points: 50
+        },
+        TRIDECAGON: {
+            code: '13S175H3000P1500C#556B2FB#333F1CD60',
+            points: 55
+        },
+        DEBUG: {
+            code: '32S150H10000P1000C#FF00FFB#800080D50',
+            points: 100
+        }
+    },
+    BULLETS: {
+        BASIC: {
+            speed: 10,
+            damage: 10,
+            penetration: 1,
+            range: 1000,
+            radius: 5
+        },
+        SNIPER: {
+            speed: 15,
+            damage: 15,
+            penetration: 2,
+            range: 1500,
+            radius: 3.5
+        },
+        AUTO_CANNON: {
+            speed: 8,
+            damage: 5,
+            penetration: 1,
+            range: 800,
+            radius: 4
+        }
+    },
+    UPGRADES: {
+        SPECIAL: {
+            AUTO_CANNON: {
+                minLevel: 5,
+                maxTier: 2,
+                tier2MinLevel: 10,
+                range: 500,
+                rangeMultiplierTier2: 1.5,
+                damageMultiplierTier2: 2,
+                fireRate: 1000
+            },
+            AURA: {
+                minLevel: 5,
+                maxTier: 2,
+                tier2MinLevel: 10,
+                range: 150,
+                rangeMultiplierTier2: 2,
+                damageMultiplierTier2: 2,
+                damageRate: 500,
+                baseDamage: 5
+            }
+        },
+        STATS: {
+            maxLevel: 7,
+            bulletSpeed: {
+                perLevel: 1.5
+            },
+            bulletPenetration: {
+                perLevel: 1
+            },
+            bodyHealth: {
+                perLevel: 15
+            },
+            movementSpeed: {
+                perLevel: 0.3
+            },
+            bodyDamage: {
+                perLevel: 5
+            },
+            firingSpeed: {
+                perLevel: 10
+            }
+        }
+    },
+    SCORING: {
+        POINTS_PER_LEVEL: 500,
+        LEVEL_SCALING: 0.5,
+        calculatePointsForLevel: function(level) {
+            return Math.floor(this.POINTS_PER_LEVEL * (1 + ((level - 1) * this.LEVEL_SCALING)));
+        }
+    }
+};
+
+class Player {
+    constructor() {
+        this.x = canvas.width / 2;
+        this.y = canvas.height / 2;
+        this.radius = 20;
+        this.color = '#00b2e1';
+        this.barrelColor = '#999999';
+        this.baseSpeed = GAME_CONFIG.TANKS.BASIC.baseSpeed;
+        this.score = 0;
+        this.level = 1;
+        this.angle = 0;
+        this.dead = false;
+        this.velocityX = 0;
+        this.velocityY = 0;
+        this.friction = 0.95;
+        this.acceleration = 0.5;
+        this.maxHealth = GAME_CONFIG.TANKS.BASIC.baseHealth;
+        this.health = this.maxHealth;
+        this.upgradePoints = 0;
+        this.upgrades = {
+            bulletSpeed: 0,
+            bulletPenetration: 0,
+            bodyHealth: 0,
+            movementSpeed: 0,
+            bodyDamage: 0,
+            firingSpeed: 0,
+            autoCannon: 0,
+            aura: 0
+        };
+        this.lastAuraDamage = 0;
+        this.auraRadius = 0;
+        this.auraDamageRate = GAME_CONFIG.UPGRADES.SPECIAL.AURA.damageRate; 
+        this.tankType = 'BASIC';
+        this.lastFiredBarrel = 0;
+        this.shootPattern = 'basic';
+        this.bulletConfig = GAME_CONFIG.BULLETS.BASIC;
+        this.lastAutoCannonShot = 0;
+    }
+
+    setTankType(type) {
+        const tankConfig = GAME_CONFIG.TANKS[type];
+        this.tankType = type;
+        this.baseSpeed = tankConfig.baseSpeed;
+        this.maxHealth = tankConfig.baseHealth;
+        this.health = this.maxHealth;
+        if (type === 'SNIPER') {
+            this.bulletConfig = GAME_CONFIG.BULLETS.SNIPER;
+        } else {
+            this.bulletConfig = GAME_CONFIG.BULLETS.BASIC;
+        }
+    }
+
+    update() {
+        const levelSpeedPenalty = 0.1 * (this.level - 1); 
+        const speedMultiplier = Math.max(0.2, 1 - levelSpeedPenalty); 
+
+        const dx = mouseX - (this.x - cameraX);
+        const dy = mouseY - (this.y - cameraY);
+        this.angle = Math.atan2(dy, dx);
+
+        if (keys['w'] || keys['ArrowUp']) {
+            this.velocityY -= this.acceleration * speedMultiplier;
+        }
+        if (keys['s'] || keys['ArrowDown']) {
+            this.velocityY += this.acceleration * speedMultiplier;
+        }
+        if (keys['a'] || keys['ArrowLeft']) {
+            this.velocityX -= this.acceleration * speedMultiplier;
+        }
+        if (keys['d'] || keys['ArrowRight']) {
+            this.velocityX += this.acceleration * speedMultiplier;
+        }
+
+        this.velocityX *= this.friction;
+        this.velocityY *= this.friction;
+
+        const maxSpeed = this.baseSpeed * speedMultiplier;
+        const currentSpeed = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
+        if (currentSpeed > maxSpeed) {
+            const scale = maxSpeed / currentSpeed;
+            this.velocityX *= scale;
+            this.velocityY *= scale;
+        }
+
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+
+        cameraX = this.x - canvas.width / 2;
+        cameraY = this.y - canvas.height / 2;
+    }
+
+    draw() {
+        ctx.save();
+        ctx.translate(this.x - cameraX, this.y - cameraY);
+        ctx.rotate(this.angle);
+
+        const tankConfig = GAME_CONFIG.TANKS[this.tankType];
+
+        if (this.tankType === 'TWIN') {
+            const spacing = tankConfig.barrelSpacing * this.radius;
+            for (let i = 0; i < 2; i++) {
+                ctx.beginPath();
+                ctx.rect(
+                    0, 
+                    (i === 0 ? spacing : -spacing) - tankConfig.barrelWidth * this.radius / 2,
+                    tankConfig.barrelLength * this.radius,
+                    tankConfig.barrelWidth * this.radius
+                );
+                ctx.fillStyle = this.barrelColor;
+                ctx.fill();
+                ctx.stroke();
+            }
+        } else {
+            ctx.beginPath();
+            ctx.rect(
+                0,
+                -tankConfig.barrelWidth * this.radius / 2,
+                tankConfig.barrelLength * this.radius,
+                tankConfig.barrelWidth * this.radius
+            );
+            ctx.fillStyle = this.barrelColor;
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = '#0080a0'; 
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    drawHealthBar() {
+        if (this.health < this.maxHealth) {
+            const width = 40;
+            const height = 4;
+            const x = this.x - cameraX - width / 2;
+            const y = this.y - cameraY - this.radius - 10;
+
+            ctx.fillStyle = '#333';
+            ctx.fillRect(x, y, width, height);
+
+            ctx.fillStyle = '#0f0';
+            ctx.fillRect(x, y, width * (this.health / this.maxHealth), height);
+        }
+    }
+
+    levelUp() {
+        this.level++;
+        this.upgradePoints++;
+        levelEl.textContent = this.level;
+        document.getElementById('upgradePoints').textContent = this.upgradePoints;
+        this.radius += 2;
+
+        if (this.level === 5) {
+            showTankUpgrades();
+        }
+    }
+
+    checkLevelUp() {
+        const nextLevelPoints = GAME_CONFIG.SCORING.calculatePointsForLevel(this.level + 1);
+        if (this.score >= nextLevelPoints) {
+            this.levelUp();
+        }
+    }
+
+    applyUpgrades(type) {
+        switch(type) {
+            case 'bulletSpeed':
+                this.speed = this.bulletConfig.speed + (this.upgrades.bulletSpeed * GAME_CONFIG.UPGRADES.STATS.bulletSpeed.perLevel);
+                break;
+            case 'bodyHealth':
+                this.maxHealth = GAME_CONFIG.TANKS[this.tankType].baseHealth + (this.upgrades.bodyHealth * GAME_CONFIG.UPGRADES.STATS.bodyHealth.perLevel);
+                this.health = this.maxHealth;
+                break;
+            case 'movementSpeed':
+                this.baseSpeed = GAME_CONFIG.TANKS[this.tankType].baseSpeed + (this.upgrades.movementSpeed * GAME_CONFIG.UPGRADES.STATS.movementSpeed.perLevel);
+                break;
+            case 'firingSpeed':
+                shootCooldown = Math.max(20, 150 - (this.upgrades.firingSpeed * GAME_CONFIG.UPGRADES.STATS.firingSpeed.perLevel));
+                break;
+        }
+    }
+
+    updateAura() {
+        if (this.upgrades.aura > 0 && !isPaused && !this.dead) {
+            const currentTime = Date.now();
+            const tier2Multiplier = this.upgrades.aura === 2 ? 2 : 1;
+
+            ctx.beginPath();
+            ctx.arc(this.x - cameraX, this.y - cameraY, GAME_CONFIG.UPGRADES.SPECIAL.AURA.range * tier2Multiplier, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.stroke();
+
+            if (currentTime - this.lastAuraDamage > this.auraDamageRate) {
+                const auraRange = GAME_CONFIG.UPGRADES.SPECIAL.AURA.range * tier2Multiplier;
+                const baseDamage = (GAME_CONFIG.UPGRADES.SPECIAL.AURA.baseDamage + this.level) * tier2Multiplier;
+
+                const allShapes = [...squares, ...triangles, ...pentagons, ...hexagons, ...debugShapes, ...heptagons, ...octagons, ...nonagons, ...decagons, ...hendecagons, ...dodecagons, ...tridecagons];
+
+                for (const shape of allShapes) {
+                    const dx = shape.x - this.x;
+                    const dy = shape.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < auraRange) {
+                        shape.health -= baseDamage;
+                        if (shape.health <= 0) {
+                            this.score += shape.config.points;
+                            scoreEl.textContent = this.score;
+                            this.checkLevelUp();
+
+                            const index = allShapes.indexOf(shape);
+                            if (index > -1) {
+                                if (shape instanceof Square) {
+                                    squares.splice(squares.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Triangle) {
+                                    triangles.splice(triangles.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Pentagon) {
+                                    pentagons.splice(pentagons.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Hexagon) {
+                                    hexagons.splice(hexagons.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Heptagon) {
+                                    heptagons.splice(heptagons.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Octagon) {
+                                    octagons.splice(octagons.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Nonagon) {
+                                    nonagons.splice(nonagons.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Decagon) {
+                                    decagons.splice(decagons.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Hendecagon) {
+                                    hendecagons.splice(hendecagons.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Dodecagon) {
+                                    dodecagons.splice(dodecagons.indexOf(shape), 1);
+                                }
+                                if (shape instanceof Tridecagon) {
+                                    tridecagons.splice(tridecagons.indexOf(shape), 1);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                this.lastAuraDamage = currentTime;
+            }
+        }
+    }
+
+    updateAutoCannon() {
+        if (this.upgrades.autoCannon > 0 && !isPaused && !this.dead) {
+            const currentTime = Date.now();
+            const tier2Multiplier = this.upgrades.autoCannon === 2 ? 2 : 1;
+            const autoCannonBaseRate = GAME_CONFIG.UPGRADES.SPECIAL.AUTO_CANNON.fireRate;
+            const firingSpeedMultiplier = Math.max(0.2, 1 - (this.upgrades.firingSpeed * 0.1));
+            const fireRate = autoCannonBaseRate * firingSpeedMultiplier / tier2Multiplier;
+
+            if (currentTime - this.lastAutoCannonShot > fireRate) {
+                let closestShape = null;
+                let closestDistance = Infinity;
+
+                const allShapes = [...squares, ...triangles, ...pentagons, ...hexagons, ...heptagons, ...octagons, ...nonagons, ...decagons];
+
+                for (const shape of allShapes) {
+                    const dx = shape.x - this.x;
+                    const dy = shape.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestShape = shape;
+                    }
+                }
+
+                const range = GAME_CONFIG.UPGRADES.SPECIAL.AUTO_CANNON.range * (1 + (this.upgrades.autoCannon === 2 ? 0.5 : 0));
+
+                if (closestShape && closestDistance < range) {
+                    const targetAngle = Math.atan2(
+                        closestShape.y - this.y,
+                        closestShape.x - this.x
+                    );
+
+                    const bullet = new Bullet('AUTO_CANNON',
+                        this.x + this.radius * 2 * Math.cos(targetAngle),
+                        this.y + this.radius * 2 * Math.sin(targetAngle),
+                        targetAngle
+                    );
+
+                    this.lastAutoCannonShot = currentTime;
+                }
+            }
+        }
+    }
+
+    handleShapeCollision(shape) {
+        const dx = this.x - shape.x;
+        const dy = this.y - shape.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        const nx = dx / distance;
+        const ny = dy / distance;
+
+        this.x += nx * 2;
+        this.y += ny * 2;
+
+        let damage = 0;
+        if (shape instanceof Triangle) {
+            damage = GAME_CONFIG.SHAPES.TRIANGLE.damage;
+        } else if (shape instanceof Square) {
+            damage = GAME_CONFIG.SHAPES.SQUARE.damage;
+        } else if (shape instanceof Pentagon) {
+            damage = GAME_CONFIG.SHAPES.PENTAGON.damage;
+        } else if (shape instanceof Hexagon) {
+            damage = GAME_CONFIG.SHAPES.HEXAGON.damage; 
+        } else if (shape instanceof Heptagon) {
+            damage = GAME_CONFIG.SHAPES.HEPTAGON.damage;
+        } else if (shape instanceof Octagon) {
+            damage = GAME_CONFIG.SHAPES.OCTAGON.damage;
+        } else if (shape instanceof Nonagon) {
+            damage = GAME_CONFIG.SHAPES.NONAGON.damage;
+        } else if (shape instanceof Decagon) {
+            damage = GAME_CONFIG.SHAPES.DECAGON.damage;
+        } else if (shape instanceof Hendecagon) {
+            damage = GAME_CONFIG.SHAPES.HENDECAGON.damage;
+        } else if (shape instanceof Dodecagon) {
+            damage = GAME_CONFIG.SHAPES.DODECAGON.damage;
+        } else if (shape instanceof Tridecagon) {
+            damage = GAME_CONFIG.SHAPES.TRIDECAGON.damage; 
+        }
+
+        this.health -= damage;
+
+        if (this.health <= 0) {
+            this.dead = true;
+            document.getElementById('gameOver').style.display = 'block';
+            document.getElementById('finalScore').textContent = this.score;
+        }
+    }
+
+    shoot() {
+        const currentTime = Date.now();
+        if (currentTime - lastShootTime < shootCooldown) return;
+
+        const barrelLength = this.radius * 2;
+
+        const bullet = new Bullet(this.bulletConfig === GAME_CONFIG.BULLETS.SNIPER ? 'SNIPER' : 'BASIC',
+            this.x + barrelLength * Math.cos(this.angle),
+            this.y + barrelLength * Math.sin(this.angle),
+            this.angle
+        );
+
+        bullets.push(bullet);
+        lastShootTime = currentTime;
+    }
+}
+
+class Shape {
+    constructor(code) {
+        const [sides, size, health, points, color, borderColor, damage] = code.match(/(\d+)S(\d+)H(\d+)P(\d+)C(#[A-Fa-f0-9]+)B(#[A-Fa-f0-9]+)D(\d+)/).slice(1);
+        
+        this.sides = parseInt(sides);
+        this.size = parseInt(size);
+        this.maxHealth = parseInt(health);
+        this.health = this.maxHealth;
+        this.points = parseInt(points);
+        this.color = color;
+        this.borderColor = borderColor;
+        this.damage = parseInt(damage);
+        
+        this.x = Math.random() * canvas.width * 4 - canvas.width * 2;
+        this.y = Math.random() * canvas.height * 4 - canvas.height * 2;
+        this.angle = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+    }
+
+    update() {
+        this.angle += this.rotationSpeed;
+    }
+
+    draw() {
+        if (
+            this.x + this.size < cameraX ||
+            this.x - this.size > cameraX + canvas.width ||
+            this.y + this.size < cameraY ||
+            this.y - this.size > cameraY + canvas.height
+        ) {
+            return;
+        }
+
+        ctx.save();
+        ctx.translate(this.x - cameraX, this.y - cameraY);
+        ctx.rotate(this.angle);
+
+        ctx.beginPath();
+        for (let i = 0; i < this.sides; i++) {
+            const angle = (i * 2 * Math.PI) / this.sides;
+            const x = Math.cos(angle) * this.size;
+            const y = Math.sin(angle) * this.size;
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.closePath();
+        
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = this.borderColor;
+        ctx.lineWidth = 3;
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    drawHealthBar() {
+        if (this.health < this.maxHealth) {
+            const width = this.size * 2;
+            const height = 4;
+            const x = this.x - cameraX - width / 2;
+            const y = this.y - cameraY - this.size - 10;
+
+            ctx.fillStyle = '#333';
+            ctx.fillRect(x, y, width, height);
+
+            ctx.fillStyle = '#0f0';
+            ctx.fillRect(x, y, width * (this.health / this.maxHealth), height);
+        }
+    }
+}
+
+class Triangle extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.TRIANGLE.code);
+    }
+}
+
+class Square extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.SQUARE.code);
+    }
+}
+
+class Pentagon extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.PENTAGON.code);
+    }
+}
+
+class Hexagon extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.HEXAGON.code);
+    }
+}
+
+class Heptagon extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.HEPTAGON.code);
+    }
+}
+
+class Octagon extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.OCTAGON.code);
+    }
+}
+
+class Nonagon extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.NONAGON.code);
+    }
+}
+
+class Decagon extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.DECAGON.code);
+    }
+}
+
+class Hendecagon extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.HENDECAGON.code);
+    }
+}
+
+class Dodecagon extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.DODECAGON.code);
+    }
+}
+
+class Tridecagon extends Shape {
+    constructor() {
+        super(GAME_CONFIG.SHAPES.TRIDECAGON.code);
+    }
+}
+
+class DebugShape extends Shape {
+    constructor(x, y) {
+        super(GAME_CONFIG.SHAPES.DEBUG.code);
+        this.x = x;
+        this.y = y;
+    }
+}
+
+class Bullet {
+    constructor(type, x, y, angle) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        
+        const config = GAME_CONFIG.BULLETS[type];
+        this.speed = config.speed * (1 + player.upgrades.bulletSpeed * 0.15);
+        this.damage = config.damage * (1 + player.level * 0.1);
+        this.penetrationsLeft = 1 + player.upgrades.bulletPenetration;
+        this.maxDistance = config.range;
+        this.distanceTraveled = 0;
+        this.angle = angle;
+        this.radius = config.radius * (1 + player.level * 0.05);
+        this.health = 1 + player.upgrades.bulletPenetration;
+    }
+
+    update() {
+        const dx = Math.cos(this.angle) * this.speed;
+        const dy = Math.sin(this.angle) * this.speed;
+        this.x += dx;
+        this.y += dy;
+        this.distanceTraveled += Math.sqrt(dx * dx + dy * dy);
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x - cameraX, this.y - cameraY, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#999999';
+        ctx.fill();
+    }
+}
+
+const player = new Player();
+
+const bullets = [];
+const squares = [];
+const pentagons = [];
+const triangles = [];
+const hexagons = [];
+const heptagons = [];
+const octagons = [];
+const nonagons = [];
+const decagons = [];
+const hendecagons = [];
+const dodecagons = [];
+const tridecagons = [];
+const debugShapes = [];
+const keys = [];
+
+for (let i = 0; i < 10; i++) {
+    squares.push(new Square());
+}
+for (let i = 0; i < 5; i++) {
+    pentagons.push(new Pentagon());
+}
+for (let i = 0; i < 8; i++) {
+    triangles.push(new Triangle());
+}
+for (let i = 0; i < 3; i++) {
+    hexagons.push(new Hexagon());
+}
+for (let i = 0; i < 2; i++) {
+    heptagons.push(new Heptagon());
+}
+for (let i = 0; i < 2; i++) {
+    octagons.push(new Octagon());
+}
+for (let i = 0; i < 2; i++) {
+    nonagons.push(new Nonagon());
+}
+for (let i = 0; i < 1; i++) {
+    decagons.push(new Decagon());
+}
+for (let i = 0; i < 1; i++) {
+    hendecagons.push(new Hendecagon());
+}
+for (let i = 0; i < 1; i++) {
+    dodecagons.push(new Dodecagon());
+}
+for (let i = 0; i < 1; i++) {
+    tridecagons.push(new Tridecagon());
+}
+
+let lastSpawnTime = Date.now();
+const spawnInterval = 1000;
+
+function spawnRandomShape() {
+    let validSpawn = false;
+    let spawnX, spawnY;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    while (!validSpawn && attempts < maxAttempts) {
+        spawnX = player.x + (Math.random() - 0.5) * canvas.width * 4;
+        spawnY = player.y + (Math.random() - 0.5) * canvas.height * 4;
+
+        const dx = spawnX - player.x;
+        const dy = spawnY - player.y;
+        const distanceFromPlayer = Math.sqrt(dx * dx + dy * dy);
+
+        if (distanceFromPlayer > NO_SPAWN_RADIUS) {
+            validSpawn = true;
+        }
+
+        attempts++;
+    }
+
+    if (validSpawn) {
+        const rand = Math.random();
+
+        if (rand < 0.35) {
+            const square = new Square();
+            square.x = spawnX;
+            square.y = spawnY;
+            squares.push(square);
+        } else if (rand < 0.6) {
+            const triangle = new Triangle();
+            triangle.x = spawnX;
+            triangle.y = spawnY;
+            triangles.push(triangle);
+        } else if (rand < 0.75) {
+            const pentagon = new Pentagon();
+            pentagon.x = spawnX;
+            pentagon.y = spawnY;
+            pentagons.push(pentagon);
+        } else if (rand < 0.85) {
+            const hexagon = new Hexagon();
+            hexagon.x = spawnX;
+            hexagon.y = spawnY;
+            hexagons.push(hexagon);
+        } else if (rand < 0.9) {
+            const heptagon = new Heptagon();
+            heptagon.x = spawnX;
+            heptagon.y = spawnY;
+            heptagons.push(heptagon);
+        } else if (rand < 0.93) {
+            const octagon = new Octagon();
+            octagon.x = spawnX;
+            octagon.y = spawnY;
+            octagons.push(octagon);
+        } else if (rand < 0.95) {
+            const nonagon = new Nonagon();
+            nonagon.x = spawnX;
+            nonagon.y = spawnY;
+            nonagons.push(nonagon);
+        } else if (rand < 0.97) {
+            const decagon = new Decagon();
+            decagon.x = spawnX;
+            decagon.y = spawnY;
+            decagons.push(decagon);
+        } else if (rand < 0.985) {
+            const hendecagon = new Hendecagon();
+            hendecagon.x = spawnX;
+            hendecagon.y = spawnY;
+            hendecagons.push(hendecagon);
+        } else if (rand < 0.995) {
+            const dodecagon = new Dodecagon();
+            dodecagon.x = spawnX;
+            dodecagon.y = spawnY;
+            dodecagons.push(dodecagon);
+        } else {
+            const tridecagon = new Tridecagon();
+            tridecagon.x = spawnX;
+            tridecagon.y = spawnY;
+            tridecagons.push(tridecagon);
+        }
+    }
+}
+
+window.addEventListener('keydown', e => {
+    keys[e.key] = true;
+    if (e.key.toLowerCase() === 'p') {
+        isPaused = !isPaused;
+        pauseMenu.style.display = isPaused ? 'block' : 'none';
+    }
+    if (e.key === ' ' && player.dead) {
+        location.reload();
+    }
+    if (e.key.toLowerCase() === 'u') {
+        player.score += 1000;
+        scoreEl.textContent = player.score;
+        player.checkLevelUp();
+    }
+    if (e.key.toLowerCase() === 'k') {
+        const debugShape = new DebugShape(player.x + 200, player.y);
+        debugShapes.push(debugShape);
+    }
+});
+window.addEventListener('keyup', e => keys[e.key] = false);
+
+function showTankUpgrades() {
+    const tankMenu = document.getElementById('tankSelectMenu');
+    tankMenu.style.display = 'block';
+}
+
+function initializeTankSelection() {
+    const tankOptions = document.querySelectorAll('.tank-option');
+    tankOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const tankType = option.dataset.tank;
+            player.setTankType(tankType);
+            document.getElementById('tankSelectMenu').style.display = 'none';
+        });
+    });
+}
+
+function initializeUpgradeSystem() {
+    const autoCannonBtn = document.getElementById('autoCannon');
+    const auraBtn = document.getElementById('aura');
+    const specialUpgradesDiv = document.createElement('div');
+    specialUpgradesDiv.className = 'auto-cannon-menu';
+    document.body.appendChild(specialUpgradesDiv);
+
+    specialUpgradesDiv.appendChild(autoCannonBtn);
+    specialUpgradesDiv.appendChild(auraBtn);
+
+    const upgradeButtons = {
+        bulletSpeed: document.getElementById('bulletSpeed'),
+        bulletPenetration: document.getElementById('bulletPenetration'),
+        bodyHealth: document.getElementById('bodyHealth'),
+        movementSpeed: document.getElementById('movementSpeed'),
+        bodyDamage: document.getElementById('bodyDamage'),
+        firingSpeed: document.getElementById('firingSpeed'),
+        autoCannon: autoCannonBtn,
+        aura: auraBtn
+    };
+
+    specialUpgradesDiv.style.display = 'none';
+
+    for (const [type, button] of Object.entries(upgradeButtons)) {
+        button.addEventListener('click', () => {
+            if (player.upgradePoints > 0) {
+                if ((type === 'autoCannon' || type === 'aura')) {
+                    if (player.upgrades.autoCannon > 0 || player.upgrades.aura > 0) {
+                        return;
+                    }
+
+                    if (player.level >= 5) {
+                        if (player.upgrades[type] === 0) {
+                            player.upgradePoints--;
+                            player.upgrades[type] = 1;
+                            document.getElementById('upgradePoints').textContent = player.upgradePoints;
+                            document.getElementById(`${type}Level`).textContent = "I";
+
+                            if (type === 'autoCannon') {
+                                auraBtn.style.display = 'none';
+                            } else if (type === 'aura') {
+                                autoCannonBtn.style.display = 'none';
+                            }
+
+                        } else if (player.upgrades[type] === 1 && player.level >= 10) {
+                            player.upgradePoints--;
+                            player.upgrades[type] = 2;
+                            document.getElementById('upgradePoints').textContent = player.upgradePoints;
+                            document.getElementById(`${type}Level`).textContent = "II";
+                        }
+                    }
+                } else {
+                    player.upgradePoints--;
+                    player.upgrades[type]++;
+                    document.getElementById('upgradePoints').textContent = player.upgradePoints;
+                    document.getElementById(`${type}Level`).textContent = player.upgrades[type];
+                    player.applyUpgrades(type);
+                }
+            }
+        });
+    }
+
+    const levelEl = document.getElementById('level');
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (parseInt(mutation.target.textContent) >= 5) {
+                specialUpgradesDiv.style.display = 'block';
+            }
+        });
+    });
+    observer.observe(levelEl, { childList: true });
+}
+
+initializeTankSelection();
+initializeUpgradeSystem();
+
+function gameLoop() {
+    if (!isPaused && !player.dead) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (isMouseDown) {
+            player.shoot();
+        }
+
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 1;
+        const gridSize = 50;
+        const offsetX = -cameraX % gridSize;
+        const offsetY = -cameraY % gridSize;
+
+        for (let x = offsetX; x < canvas.width; x += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+        }
+
+        for (let y = offsetY; y < canvas.height; y += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+        }
+
+        const currentTime = Date.now();
+        if (currentTime - lastSpawnTime >= spawnInterval) {
+            spawnRandomShape();
+            lastSpawnTime = currentTime;
+        }
+
+        player.update();
+        player.updateAutoCannon();
+        player.draw();
+        player.drawHealthBar();
+
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            bullets[i].update();
+            bullets[i].draw();
+
+            if (bullets[i].health <= 0 || bullets[i].distanceTraveled >= bullets[i].maxDistance) {
+                bullets.splice(i, 1);
+                continue;
+            }
+
+            for (let j = squares.length - 1; j >= 0; j--) {
+                const dx = bullets[i].x - squares[j].x;
+                const dy = bullets[i].y - squares[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < bullets[i].radius + squares[j].size / 2) {
+                    squares[j].health -= bullets[i].damage;
+                    bullets[i].penetrationsLeft--;
+
+                    if (squares[j].health <= 0) {
+                        player.score += GAME_CONFIG.SHAPES.SQUARE.points;
+                        scoreEl.textContent = player.score;
+                        player.checkLevelUp();
+                        squares.splice(j, 1);
+                    }
+
+                    if (bullets[i].penetrationsLeft <= 0) {
+                        bullets.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = pentagons.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - pentagons[j].x;
+                    const dy = bullets[i].y - pentagons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + pentagons[j].size) {
+                        pentagons[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (pentagons[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.PENTAGON.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            pentagons.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = triangles.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - triangles[j].x;
+                    const dy = bullets[i].y - triangles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + triangles[j].size) {
+                        triangles[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (triangles[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.TRIANGLE.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            triangles.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = hexagons.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - hexagons[j].x;
+                    const dy = bullets[i].y - hexagons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + hexagons[j].size) {
+                        hexagons[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (hexagons[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.HEXAGON.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            hexagons.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = heptagons.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - heptagons[j].x;
+                    const dy = bullets[i].y - heptagons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + heptagons[j].size) {
+                        heptagons[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (heptagons[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.HEPTAGON.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            heptagons.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = octagons.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - octagons[j].x;
+                    const dy = bullets[i].y - octagons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + octagons[j].size) {
+                        octagons[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (octagons[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.OCTAGON.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            octagons.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = nonagons.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - nonagons[j].x;
+                    const dy = bullets[i].y - nonagons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + nonagons[j].size) {
+                        nonagons[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (nonagons[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.NONAGON.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            nonagons.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = decagons.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - decagons[j].x;
+                    const dy = bullets[i].y - decagons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + decagons[j].size) {
+                        decagons[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (decagons[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.DECAGON.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            decagons.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = hendecagons.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - hendecagons[j].x;
+                    const dy = bullets[i].y - hendecagons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + hendecagons[j].size) {
+                        hendecagons[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (hendecagons[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.HENDECAGON.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            hendecagons.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = dodecagons.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - dodecagons[j].x;
+                    const dy = bullets[i].y - dodecagons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + dodecagons[j].size) {
+                        dodecagons[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (dodecagons[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.DODECAGON.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            dodecagons.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (bullets[i]) {
+                for (let j = tridecagons.length - 1; j >= 0; j--) {
+                    const dx = bullets[i].x - tridecagons[j].x;
+                    const dy = bullets[i].y - tridecagons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < bullets[i].radius + tridecagons[j].size) {
+                        tridecagons[j].health -= bullets[i].damage;
+                        bullets[i].penetrationsLeft--;
+
+                        if (tridecagons[j].health <= 0) {
+                            player.score += GAME_CONFIG.SHAPES.TRIDECAGON.points;
+                            scoreEl.textContent = player.score;
+                            player.checkLevelUp();
+                            tridecagons.splice(j, 1);
+                        }
+
+                        if (bullets[i].penetrationsLeft <= 0) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (let i = squares.length - 1; i >= 0; i--) {
+            squares[i].update();
+            squares[i].draw();
+            squares[i].drawHealthBar();
+
+            const dx = squares[i].x - player.x;
+            const dy = squares[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < squares[i].size / 2 + player.radius) {
+                player.handleShapeCollision(squares[i]);
+            }
+        }
+
+        for (let i = pentagons.length - 1; i >= 0; i--) {
+            pentagons[i].update();
+            pentagons[i].draw();
+            pentagons[i].drawHealthBar();
+
+            const dx = pentagons[i].x - player.x;
+            const dy = pentagons[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < pentagons[i].size + player.radius) {
+                player.handleShapeCollision(pentagons[i]);
+            }
+        }
+
+        for (let i = triangles.length - 1; i >= 0; i--) {
+            triangles[i].update();
+            triangles[i].draw();
+            triangles[i].drawHealthBar();
+
+            const dx = triangles[i].x - player.x;
+            const dy = triangles[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < triangles[i].size + player.radius) {
+                player.handleShapeCollision(triangles[i]);
+            }
+        }
+
+        for (let i = hexagons.length - 1; i >= 0; i--) {
+            hexagons[i].update();
+            hexagons[i].draw();
+            hexagons[i].drawHealthBar();
+
+            const dx = hexagons[i].x - player.x;
+            const dy = hexagons[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < hexagons[i].size + player.radius) {
+                player.handleShapeCollision(hexagons[i]);
+            }
+        }
+
+        for (let i = heptagons.length - 1; i >= 0; i--) {
+            heptagons[i].update();
+            heptagons[i].draw();
+            heptagons[i].drawHealthBar();
+
+            const dx = heptagons[i].x - player.x;
+            const dy = heptagons[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < heptagons[i].size + player.radius) {
+                player.handleShapeCollision(heptagons[i]);
+            }
+        }
+
+        for (let i = octagons.length - 1; i >= 0; i--) {
+            octagons[i].update();
+            octagons[i].draw();
+            octagons[i].drawHealthBar();
+
+            const dx = octagons[i].x - player.x;
+            const dy = octagons[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < octagons[i].size + player.radius) {
+                player.handleShapeCollision(octagons[i]);
+            }
+        }
+
+        for (let i = nonagons.length - 1; i >= 0; i--) {
+            nonagons[i].update();
+            nonagons[i].draw();
+            nonagons[i].drawHealthBar();
+
+            const dx = nonagons[i].x - player.x;
+            const dy = nonagons[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < nonagons[i].size + player.radius) {
+                player.handleShapeCollision(nonagons[i]);
+            }
+        }
+
+        for (let i = decagons.length - 1; i >= 0; i--) {
+            decagons[i].update();
+            decagons[i].draw();
+            decagons[i].drawHealthBar();
+
+            const dx = decagons[i].x - player.x;
+            const dy = decagons[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < decagons[i].size + player.radius) {
+                player.handleShapeCollision(decagons[i]);
+            }
+        }
+
+        for (let i = hendecagons.length - 1; i >= 0; i--) {
+            hendecagons[i].update();
+            hendecagons[i].draw();
+            hendecagons[i].drawHealthBar();
+
+            const dx = hendecagons[i].x - player.x;
+            const dy = hendecagons[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < hendecagons[i].size + player.radius) {
+                player.handleShapeCollision(hendecagons[i]);
+            }
+        }
+
+        for (let i = dodecagons.length - 1; i >= 0; i--) {
+            dodecagons[i].update();
+            dodecagons[i].draw();
+            dodecagons[i].drawHealthBar();
+
+            const dx = dodecagons[i].x - player.x;
+            const dy = dodecagons[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < dodecagons[i].size + player.radius) {
+                player.handleShapeCollision(dodecagons[i]);
+            }
+        }
+
+        for (let i = tridecagons.length - 1; i >= 0; i--) {
+            tridecagons[i].update();
+            tridecagons[i].draw();
+            tridecagons[i].drawHealthBar();
+
+            const dx = tridecagons[i].x - player.x;
+            const dy = tridecagons[i].y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < tridecagons[i].size + player.radius) {
+                player.handleShapeCollision(tridecagons[i]);
+            }
+        }
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+</body>
+</html>
