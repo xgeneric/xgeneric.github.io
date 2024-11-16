@@ -178,7 +178,7 @@ body {
     <div class="featured-content">
       <h1>Fеаturеd Gаmе - Gеоmеtrу Dаѕh</h1>
       <p>РІау оur mоѕt рорulаr gаmе wіth оvеr 100 рlауеrѕ аn hоur!</p>
-      <a href="#" onclick="var win=window.open();var iframe=win.document.createElement('iframe');iframe.style.cssText='width:100%;height:100%;border:none';iframe.src='${lesson.url}';win.document.body.style.cssText='margin:0;padding:0';win.document.body.appendChild(iframe);return false;">
+      <a href="#" onclick="var win=window.open();var iframe=win.document.createElement('iframe');iframe.style.cssText='width:100%;height:100%;border:none';iframe.src='geodash.html';win.document.body.style.cssText='margin:0;padding:0';win.document.body.appendChild(iframe);return false;">
   <button class="pIay-btn">Рlay Now</button>
 </a>
 
@@ -274,10 +274,9 @@ lessons.forEach(lesson => {
     <div class="lesson-info">
       <h3 class="lesson-title">${lesson.title}</h3>
       <p class="lesson-desc">${lesson.description}</p>
-      <a href="#" onclick="var win=window.open();var iframe=win.document.createElement('iframe');iframe.style.cssText='width:100%;height:100%;border:none';iframe.src='${lesson.url}';win.document.body.style.cssText='margin:0;padding:0';win.document.body.appendChild(iframe);return false;">
+      <a href="${lesson.url}" target="_blank">
+  <a href="${lesson.url}" target="_blank">
   <button class="pIay-btn">Рlay Now</button>
-</a>
-
 </a>
 </a>
 
@@ -288,7 +287,8 @@ lessons.forEach(lesson => {
 });
 
 document.querySelector('.featured .pIay-btn').addEventListener('click', () => {
-  window.location.href = 'papaspizzeria.html';
+  var win=window.open(); var iframe=win.document.createElement('iframe'); iframe.style.cssText='width:100%;height:100%;border:none'; iframe.src='geodash.html'; win.document.body.style.cssText='margin:0;padding:0'; win.document.body.appendChild(iframe);
+
 });
 
 const searchBar = document.querySelector('.search-bar');
