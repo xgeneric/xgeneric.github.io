@@ -1,0 +1,332 @@
+<html><head><base href="android.emulator.com (W PROJECT) (160 seconds time limit because of trial)">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Android 14 Emulator using Appetize.io</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: #1a1a1a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #4CAF50;
+    text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+    position: absolute;
+    top: 20px;
+  }
+
+  .emulator-wrapper {
+    position: fixed;
+    top: 0;
+    left: 10px;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+  }
+
+  iframe {
+    display: block;
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    margin-left: 10px;
+  }
+
+  .loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+    color: #4CAF50;
+    z-index: 2;
+  }
+
+  .controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 2;
+  }
+
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    width: 200px;
+  }
+
+  button:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+  }
+
+  #orientation-toggle {
+    background: #2196F3;
+  }
+
+  #orientation-toggle:hover {
+    background: #1976D2;
+  }
+
+  .device-info {
+    position: fixed;
+    bottom: 120px;
+    right: 20px;
+    font-size: 0.9rem;
+    color: #888;
+    z-index: 2;
+    text-align: right;
+  }
+
+  /* Player List Styles */
+  .player-list {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(33, 33, 33, 0.9);
+    border-radius: 10px;
+    padding: 15px;
+    width: 250px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 3;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
+
+  .player-list h2 {
+    color: #4CAF50;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #4CAF50;
+    padding-bottom: 5px;
+  }
+
+  .player-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: background 0.3s ease;
+  }
+
+  .player-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .player-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+  }
+
+  .player-name {
+    color: #fff;
+    font-size: 0.9rem;
+  }
+
+  .online-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4CAF50;
+    margin-left: auto;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 1.8rem;
+    }
+    
+    iframe {
+      transform: scale(0.8);
+    }
+    
+    .controls {
+      flex-direction: column;
+      align-items: flex-end;
+      bottom: 10px;
+    }
+    
+    .device-info {
+      bottom: 160px;
+    }
+
+    button {
+      width: 150px;
+    }
+
+    .player-list {
+      width: 200px;
+      max-height: 300px;
+    }
+  }
+</style>
+</head>
+<body>
+  <h1></h1>
+  
+  <div class="emulator-wrapper">
+    <div class="loading"></div>
+    <iframe 
+      src="https://appetize.io/embed/demo?device=pixel7&scale=75&orientation=portrait&osVersion=14.0" 
+      width="340" 
+      height="700" 
+      frameborder="0" 
+      scrolling="no" 
+      allowfullscreen="">
+    </iframe>
+  </div>
+
+
+
+  <div class="device-info">
+    Device: Pixel 7 | Android Version: 14.0
+  </div>
+
+  <div class="controls">
+    <button id="restart">Restart</button>
+    <button id="orientation-toggle">Toggle Orientation</button>
+  </div>
+
+<script>
+const room = new WebsimSocket();
+
+document.addEventListener('DOMContentLoaded', function() {
+  const iframe = document.querySelector('iframe');
+  const loading = document.querySelector('.loading');
+  const restartButton = document.getElementById('restart');
+  const orientationButton = document.getElementById('orientation-toggle');
+  const playersContainer = document.getElementById('players-container');
+  let isPortrait = true;
+
+  room.onPeersChanged = (peers) => {
+    updatePlayerList(peers);
+  };
+
+  function updatePlayerList(peers) {
+    playersContainer.innerHTML = '';
+    
+    Object.entries(peers).forEach(([clientId, {username, avatarUrl}]) => {
+      const playerItem = document.createElement('div');
+      playerItem.className = 'player-item';
+      
+      playerItem.innerHTML = `
+        <img class="player-avatar" src="${avatarUrl}" alt="${username}'s avatar" onerror="this.src='https://via.placeholder.com/32'">
+        <span class="player-name">${username}</span>
+        <span class="online-status"></span>
+      `;
+      
+      playersContainer.appendChild(playerItem);
+    });
+  }
+
+  iframe.addEventListener('load', function() {
+    loading.style.display = 'none';
+  });
+
+  restartButton.addEventListener('click', function() {
+    iframe.src = iframe.src;
+    loading.style.display = 'block';
+  });
+
+  orientationButton.addEventListener('click', function() {
+    isPortrait = !isPortrait;
+    const orientation = isPortrait ? 'portrait' : 'landscape';
+    const currentSrc = new URL(iframe.src);
+    currentSrc.searchParams.set('orientation', orientation);
+    
+    iframe.style.transition = 'all 0.3s ease';
+    
+    if (isPortrait) {
+      iframe.style.width = '340px';
+      iframe.style.height = '700px';
+    } else {
+      iframe.style.width = '700px';
+      iframe.style.height = '340px';
+    }
+
+    iframe.src = currentSrc.toString();
+    loading.style.display = 'block';
+  });
+
+  function updateScale() {
+    const wrapper = document.querySelector('.emulator-wrapper');
+    const wrapperWidth = wrapper.clientWidth;
+    const wrapperHeight = wrapper.clientHeight;
+    const iframeWidth = isPortrait ? 340 : 700;
+    const iframeHeight = isPortrait ? 700 : 340;
+    
+    const scaleX = (wrapperWidth * 0.9) / iframeWidth;
+    const scaleY = (wrapperHeight * 0.9) / iframeHeight;
+    const scale = Math.min(scaleX, scaleY, 1);
+    
+    iframe.style.transform = `scale(${scale})`;
+    iframe.style.transformOrigin = 'center center';
+  }
+
+  window.addEventListener('resize', updateScale);
+  updateScale();
+
+  iframe.onerror = function() {
+    loading.innerHTML = '<span style="color: #ff4444;">Error loading. Іt mау bе blосkеd.</span><br><span style="font-size: 0.8em;"></span>';
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.origin === 'https://appetize.io') {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received message from :', data);
+      } catch (error) {
+        console.error('Error parsing message from :', error);
+      }
+    }
+  });
+
+  function broadcastEmulatorAction(action) {
+    room.send({
+      type: 'emulator_action',
+      action: action,
+      timestamp: Date.now()
+    });
+  }
+
+  restartButton.addEventListener('click', () => {
+    broadcastEmulatorAction('restart');
+  });
+
+  orientationButton.addEventListener('click', () => {
+    broadcastEmulatorAction('orientation_toggle');
+  });
+});
+</script>
+</body></html>
