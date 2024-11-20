@@ -10,7 +10,6 @@ window.addEventListener("load", function() {
     loadingScreen.style.flexDirection = "column";
     loadingScreen.style.justifyContent = "center";
     loadingScreen.style.alignItems = "center";
-    loadingScreen.style.backgroundImage = "url('/bg.gif')";
     loadingScreen.style.backgroundSize = "cover";
     loadingScreen.style.color = "gold";
     loadingScreen.style.zIndex = "1000";
@@ -29,7 +28,7 @@ window.addEventListener("load", function() {
     loadingScreen.appendChild(text);
 
     const tipText = document.createElement("p");
-    tipText.textContent = "(If your game does not load correctly try using the site outside of about:blank. If that doesn't work contact me on discord - @voucan)";
+    tipText.textContent = ":3";
     tipText.style.fontSize = "18px";
     tipText.style.fontWeight = "normal";
     tipText.style.marginTop = "10px";
