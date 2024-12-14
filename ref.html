@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referrer Detection</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const referrer = document.referrer;
+            if (referrer.includes("docs.google.com")) {
+                console.log("User came from a Google Docs link.");
+                // Add your custom logic here, e.g., analytics, showing a message, etc.
+                alert("Welcome! It seems you came from a Google Docs link.");
+            } else {
+                console.log("Referrer:", referrer);
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Welcome to My Website</h1>
+    <p>This site can detect if you arrived from a Google Docs link.</p>
+</body>
+</html>
