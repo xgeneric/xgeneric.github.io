@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Generic Enterprises</title>
+    <title>DevPath</title>
     <style>* {
     margin: 0;
     padding: 0;
@@ -9,181 +9,291 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
+    color: #2d2d2d;
+    background: #fafafa;
 }
 
-header {
-    background: white;
-    padding: 1rem;
+nav {
+    background: #fff;
+    padding: 1rem 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     position: fixed;
     width: 100%;
-    top: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    z-index: 1000;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: #333;
 }
 
 .logo img {
-    height: 40px;
+    display: none;
 }
 
-nav a {
-    margin-left: 2rem;
+nav ul {
+    display: flex;
+    list-style: none;
+}
+
+nav ul li a {
+    color: #333;
     text-decoration: none;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+nav ul li a:hover {
+    color: #666;
+}
+
+header {
+    height: 80vh;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     color: #333;
 }
 
 .hero {
-    height: 100vh;
-    background: #f5f5f5;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+    max-width: 600px;
     padding: 2rem;
 }
 
-section {
-    padding: 4rem 2rem;
-}
-
-h1 {
-    font-size: 3rem;
+.hero h1 {
+    font-size: 2.5rem;
     margin-bottom: 1rem;
+    font-weight: 500;
 }
 
-h2 {
-    font-size: 2rem;
+.hero p {
+    font-size: 1.1rem;
     margin-bottom: 2rem;
-    text-align: center;
+    color: #666;
 }
 
-.services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-.service {
-    text-align: center;
-    padding: 1rem;
-}
-
-.service img {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 1rem;
-}
-
-form {
-    max-width: 600px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-input, textarea {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-}
-
-textarea {
-    height: 150px;
-}
-
-button {
+.cta-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
     background: #333;
     color: white;
     border: none;
-    padding: 1rem 2rem;
+    border-radius: 25px;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-button:hover {
+.cta-button:hover {
+    background: #444;
+    transform: translateY(-2px);
+}
+
+section {
+    padding: 4rem 10%;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    font-weight: 500;
+}
+
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.service-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    transition: all 0.2s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-3px);
+}
+
+.service-card img {
+    display: none;
+}
+
+.service-card h3 {
+    margin-bottom: 0.8rem;
+    color: #333;
+    font-weight: 500;
+}
+
+.code-icon {
+    font-family: monospace;
+    font-size: 1.5rem;
+    margin-right: 8px;
+    color: #333;
+}
+
+.service-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.about-content {
+    display: block;
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-content img {
+    display: none;
+}
+
+.about-text {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #555;
+}
+
+.contact-form {
+    max-width: 500px;
+    margin: 0 auto;
+    display: grid;
+    gap: 1rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+    padding: 0.8rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.contact-form textarea {
+    height: 120px;
+}
+
+.contact-form button {
+    padding: 0.8rem;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.contact-form button:hover {
     background: #444;
 }
 
 footer {
-    background: #333;
-    color: white;
+    background: #f5f5f5;
+    color: #666;
     text-align: center;
     padding: 1rem;
 }
 
 @media (max-width: 768px) {
-    nav a {
-        margin-left: 1rem;
+    nav {
+        flex-direction: column;
+        padding: 1rem;
     }
     
-    h1 {
+    nav ul {
+        margin-top: 1rem;
+    }
+    
+    .hero h1 {
         font-size: 2rem;
     }
-}
-
-</style>
+    
+    .about-content {
+        display: block;
+        max-width: 700px;
+        margin: 0 auto;
+        text-align: center;
+    }
+}</style>
 </head>
 <body>
-    <header>
+    <nav>
         <div class="logo">
-            <img src="logo.png" alt="Generic Enterprises">
+            <span class="code-icon">&lt;/&gt;</span>
+            DevPath
         </div>
-        <nav>
-            <a href="#about">About</a>
-            <a href="#services">Services</a>
-            <a href="#contact">Contact</a>
-        </nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <header id="home">
+        <div class="hero">
+            <h1>We build cool stuff for the web</h1>
+            <p>Simple solutions for your digital needs</p>
+            <button class="cta-button">Let's talk</button>
+        </div>
     </header>
 
-    <section class="hero">
-        <h1>Welcome to Generic Enterprises</h1>
-        <p>Your trusted partner in generic solutions</p>
-        <button onclick="location.href='#contact'">Get Started</button>
+    <section id="services">
+        <h2>What we do</h2>
+        <div class="service-grid">
+            <div class="service-card">
+                <span class="service-icon">🌐</span>
+                <h3>Web Development</h3>
+                <p>We create websites that work great</p>
+            </div>
+            <div class="service-card">
+                <span class="service-icon">📱</span>
+                <h3>Mobile Apps</h3>
+                <p>Apps that feel natural on any device</p>
+            </div>
+            <div class="service-card">
+                <span class="service-icon">☁️</span>
+                <h3>Cloud Solutions</h3>
+                <p>Keep your apps running smoothly</p>
+            </div>
+        </div>
     </section>
 
     <section id="about">
-        <h2>About Us</h2>
-        <p>Generic Enterprises provides generic solutions for generic problems.</p>
-    </section>
-
-    <section id="services">
-        <h2>Our Services</h2>
-        <div class="services-grid">
-            <div class="service">
-                <img src="service1.png" alt="Service 1">
-                <h3>Generic Service 1</h3>
-                <p>A very generic description of our first service offering.</p>
-            </div>
-            <div class="service">
-                <img src="service2.png" alt="Service 2">
-                <h3>Generic Service 2</h3>
-                <p>A very generic description of our second service offering.</p>
-            </div>
-            <div class="service">
-                <img src="service3.png" alt="Service 3">
-                <h3>Generic Service 3</h3>
-                <p>A very generic description of our third service offering.</p>
+        <h2>Who we are</h2>
+        <div class="about-content">
+            <div class="about-text">
+                <p>We're a small team of developers who love building useful things. We keep things simple and focus on what matters - making great software that works for you.</p>
             </div>
         </div>
     </section>
 
     <section id="contact">
-        <h2>Contact Us</h2>
-        <form>
-            <input type="text" placeholder="Name">
-            <input type="email" placeholder="Email">
-            <textarea placeholder="Message"></textarea>
+        <h2>Say hello</h2>
+        <form class="contact-form">
+            <input type="text" placeholder="Your name" required>
+            <input type="email" placeholder="Your email" required>
+            <textarea placeholder="Tell us about your project" required></textarea>
             <button type="submit">Send</button>
         </form>
     </section>
 
     <footer>
-        <p>© 2024 Generic Enterprises. All rights reserved.</p>
+        <p>Made with ❤️ by DevPath</p>
     </footer>
 </body>
 </html>
-
